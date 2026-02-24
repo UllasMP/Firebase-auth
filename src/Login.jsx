@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
@@ -10,6 +10,33 @@ export default function AuthForm() {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [welcomeText, setWelcomeText] = useState("Initializing...");
+  const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+
+  const t1 = setTimeout(() => {
+    setWelcomeText("Stark Industries");
+  }, 1000);
+
+  const t2 = setTimeout(() => {
+    setWelcomeText("Welcome User");
+  }, 2500);
+
+  const t3 = setTimeout(() => {
+    setShowWelcome(false);
+    setShowForm(true);
+  }, 4000);
+
+  return () => {
+    clearTimeout(t1);
+    clearTimeout(t2);
+    clearTimeout(t3);
+  };
+
+}, []);
 
   // Handle input change
   const handleChange = (e) => {
@@ -45,8 +72,15 @@ export default function AuthForm() {
       setMessage("Signup successful");
     }
   };
-
+  if (showWelcome) {
   return (
+    <div>
+      <h1>{welcomeText}</h1>
+    </div>
+  );
+}
+  return (
+
     <div className="auth-container">
 
       <div className="auth-card">
