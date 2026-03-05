@@ -4,7 +4,7 @@ import { delay } from "../utils/delay";
 function AuthCard({ onLogin }) {
   const [authVis, setAuthVis]   = useState(false);
   const [cardVis, setCardVis]   = useState(false);
-  const [panel, setPanel]       = useState("signup"); // login | signup
+  const [panel, setPanel]       = useState("login"); // login | signup
   const [switching, setSwitching] = useState(false);
   const [sweepTarget, setSweepTarget] = useState(null);
   const [lEmail, setLEmail] = useState(""); const [lPass, setLPass]   = useState("");
@@ -71,21 +71,21 @@ function AuthCard({ onLogin }) {
             <form onSubmit={handleLogin} style={{ flex: 1 }}>
               {lAlert && <div className={`salert${lAlert.err ? "" : " ssuccess"}`}>{lAlert.msg}</div>}
               <div className="fg">
-                <input className="fi" type="email" placeholder=" " value={lEmail} onChange={e => { setLEmail(e.target.value); setLAlert(null); }} autoComplete="off" />
+                <input className="fi" type="email" placeholder=" " value={lEmail} onChange={e => { setLEmail(e.target.value); setLAlert(null); }} autoComplete="off" disabled={panel !== "login" || lLoad} />
                 <label className="fl">IDENTITY CODE (EMAIL)</label>
                 <div className="ul" /><div className="ia" />
               </div>
               <div className="fg">
-                <input className="fi" type="password" placeholder=" " value={lPass} onChange={e => { setLPass(e.target.value); setLAlert(null); }} autoComplete="off" />
+                <input className="fi" type="password" placeholder=" " value={lPass} onChange={e => { setLPass(e.target.value); setLAlert(null); }} autoComplete="off" disabled={panel !== "login" || lLoad} />
                 <label className="fl">ENCRYPTION KEY (PASSWORD)</label>
                 <div className="ul" /><div className="ia" />
               </div>
-              <button type="submit" className={`sbtn${lLoad ? " ld" : ""}`} disabled={lLoad}>
+              <button type="submit" className={`sbtn${lLoad ? " ld" : ""}`} disabled={panel !== "login" || lLoad}>
                 <span className="btn-t">INITIATE ACCESS</span>
                 <div className="btn-ld"><div className="larc" /></div>
               </button>
             </form>
-            <div className="sw-link">NO CREDENTIALS?&nbsp;<button className="sw-btn" onClick={() => switchPanel("signup")}>REGISTER IDENTITY</button></div>
+            <div className="sw-link">NO CREDENTIALS?&nbsp;<button type="button" className="sw-btn" onClick={() => switchPanel("signup")}>REGISTER IDENTITY</button></div>
             <div className="sbar"><div className="sind" /><div className="sind r" /><div className="sind g" /><span className="stxt">JARVIS SECURITY LAYER ACTIVE</span></div>
           </div>
         </div>
@@ -115,17 +115,17 @@ function AuthCard({ onLogin }) {
                 [sConf, setSConf, "password", "CONFIRM ENCRYPTION KEY"],
               ].map(([val, setter, type, label]) => (
                 <div key={label} className="fg">
-                  <input className="fi" type={type} placeholder=" " value={val} onChange={e => { setter(e.target.value); setSAlert(null); }} autoComplete="off" />
+                  <input className="fi" type={type} placeholder=" " value={val} onChange={e => { setter(e.target.value); setSAlert(null); }} autoComplete="off" disabled={panel !== "signup" || sLoad} />
                   <label className="fl">{label}</label>
                   <div className="ul" style={{ background: "var(--gold)", boxShadow: "0 0 8px var(--gold)" }} /><div className="ia" />
                 </div>
               ))}
-              <button type="submit" className={`sbtn${sLoad ? " ld" : ""}`} style={{ borderColor: "var(--gold)", marginTop: 5 }} disabled={sLoad}>
+              <button type="submit" className={`sbtn${sLoad ? " ld" : ""}`} style={{ borderColor: "var(--gold)", marginTop: 5 }} disabled={panel !== "signup" || sLoad}>
                 <span className="btn-t">REGISTER IDENTITY</span>
                 <div className="btn-ld"><div className="larc" /></div>
               </button>
             </form>
-            <div className="sw-link">ALREADY REGISTERED?&nbsp;<button className="sw-btn" onClick={() => switchPanel("login")}>ACCESS SYSTEM</button></div>
+            <div className="sw-link">ALREADY REGISTERED?&nbsp;<button type="button" className="sw-btn" onClick={() => switchPanel("login")}>ACCESS SYSTEM</button></div>
             <div className="sbar"><div className="sind g" /><div className="sind" /><div className="sind r" /><span className="stxt">ENCRYPTION PROTOCOL ENABLED</span></div>
           </div>
         </div>
