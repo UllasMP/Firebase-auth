@@ -6,9 +6,10 @@ import SuitGallery from "./components/SuitGallery";
 import VideoScene from "./components/VideoScene";
 import { STARK_CSS } from "./styles/starkCss";
 import { injectStarkFonts } from "./utils/injectFonts";
+const DEV_MODE = true; // turn off animations while building logic
 
 export default function App() {
-  const [phase, setPhase] = useState("intro");
+  const [phase, setPhase] = useState("auth");
   const [bg, setBg] = useState({ bgOn: false, arcOn: false, ringsOn: false, hexOn: false, scanOn: false });
 
   useEffect(() => {
@@ -28,10 +29,10 @@ export default function App() {
   return (
     <div className="stark-root">
       <Background {...bg} />
-      {phase === "intro" && <IntroScreen onDone={() => setPhase("auth")} onBg={onBg} />}
+      {/*{phase === "intro" && <IntroScreen onDone={() => setPhase("auth")} onBg={onBg} />}*/}
       {phase === "auth" && <AuthCard onLogin={() => setPhase("video")} />}
-      {phase === "video" && <VideoScene onDone={() => setPhase("gallery")} />}
-      {phase === "gallery" && <SuitGallery />}
+     {/* {phase === "video" && <VideoScene onDone={() => setPhase("gallery")} />}
+      {phase === "gallery" && <SuitGallery />}*/}
     </div>
   );
 }

@@ -1,5 +1,7 @@
 ﻿import { useCallback, useEffect, useState } from "react";
 import { delay } from "../utils/delay";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "./firebase";
 
 function AuthCard({ onLogin }) {
   const [authVis, setAuthVis]   = useState(false);
@@ -40,6 +42,14 @@ function AuthCard({ onLogin }) {
 
   const handleSignup = useCallback(async (e) => {
     e.preventDefault();
+    try{
+      await createUserWithEmailAndPassword(auth,sEmail,sPass);
+      const user = auth.currentUser;
+      console.log(user)
+      console.log("User Reg Done")
+    }catch(error){
+      console.log(error.message);
+    }
     setSAlert(null);
     if (!sName || !sEmail || !sPass || !sConf) { setSAlert({ msg: "ALL BIOMETRIC FIELDS REQUIRED", err: true }); return; }
     if (sPass !== sConf) { setSAlert({ msg: "ENCRYPTION KEYS DO NOT MATCH", err: true }); return; }
@@ -76,7 +86,11 @@ function AuthCard({ onLogin }) {
                 <div className="ul" /><div className="ia" />
               </div>
               <div className="fg">
-                <input className="fi" type="password" placeholder=" " value={lPass} onChange={e => { setLPass(e.target.value); setLAlert(null); }} autoComplete="off" disabled={panel !== "login" || lLoad} />
+                <input className="fi" 
+                        type="password" 
+                        placeholder=" " 
+                        value={lPass} 
+                        onChange={e => { setLPass(e.target.value); setLAlert(null); }} autoComplete="off"  />
                 <label className="fl">ENCRYPTION KEY (PASSWORD)</label>
                 <div className="ul" /><div className="ia" />
               </div>
@@ -112,7 +126,6 @@ function AuthCard({ onLogin }) {
                 [sName, setSName, "text", "OPERATIVE NAME"],
                 [sEmail, setSEmail, "email", "IDENTITY CODE (EMAIL)"],
                 [sPass, setSPass, "password", "ENCRYPTION KEY"],
-                [sConf, setSConf, "password", "CONFIRM ENCRYPTION KEY"],
               ].map(([val, setter, type, label]) => (
                 <div key={label} className="fg">
                   <input className="fi" type={type} placeholder=" " value={val} onChange={e => { setter(e.target.value); setSAlert(null); }} autoComplete="off" disabled={panel !== "signup" || sLoad} />
