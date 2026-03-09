@@ -1,7 +1,8 @@
 ﻿import { useCallback, useEffect, useState } from "react";
 import { delay } from "../utils/delay";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "./firebase";
+import { auth ,db} from "./firebase";
+import { setDoc,doc } from "firebase/firestore";
 
 function AuthCard({ onLogin }) {
   const [authVis, setAuthVis]   = useState(false);
@@ -45,14 +46,18 @@ function AuthCard({ onLogin }) {
     try{
       await createUserWithEmailAndPassword(auth,sEmail,sPass);
       const user = auth.currentUser;
-      console.log(user)
-      console.log("User Reg Done")
+      if(user){
+        await setDoc(doc(db,"Users",user.uid),{
+          email:user.email,
+          firstName:sName,
+        });
+      }
+
     }catch(error){
       console.log(error.message);
     }
     setSAlert(null);
-    if (!sName || !sEmail || !sPass || !sConf) { setSAlert({ msg: "ALL BIOMETRIC FIELDS REQUIRED", err: true }); return; }
-    if (sPass !== sConf) { setSAlert({ msg: "ENCRYPTION KEYS DO NOT MATCH", err: true }); return; }
+    if (!sName || !sEmail || !sPass) { setSAlert({ msg: "ALL BIOMETRIC FIELDS REQUIRED", err: true }); return; }
     if (sPass.length < 6) { setSAlert({ msg: "ENCRYPTION KEY TOO SHORT — MIN 6 CHARS", err: true }); return; }
     setSLoad(true);
     await delay(2400);
