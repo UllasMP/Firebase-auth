@@ -7,6 +7,8 @@ import VideoScene from "./components/VideoScene";
 import { STARK_CSS } from "./styles/starkCss";
 import { injectStarkFonts } from "./utils/injectFonts";
 const DEV_MODE = true; // turn off animations while building logic
+import "react-toastify/dist/ReactToastify.css"
+import { ToastContainer } from "react-toastify";
 
 export default function App() {
   const [phase, setPhase] = useState("auth");
@@ -28,6 +30,7 @@ export default function App() {
 
   return (
     <div className="stark-root">
+      <ToastContainer />
       <Background {...bg} />
       {/*{phase === "intro" && <IntroScreen onDone={() => setPhase("auth")} onBg={onBg} />}*/}
       {phase === "auth" && <AuthCard onLogin={() => setPhase("video")} />}

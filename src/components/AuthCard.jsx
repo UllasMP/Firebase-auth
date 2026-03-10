@@ -3,12 +3,14 @@ import { delay } from "../utils/delay";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth ,db} from "./firebase";
 import { setDoc,doc } from "firebase/firestore";
+import { toast } from "react-toastify"
 
 function AuthCard({ onLogin }) {
   const [authVis, setAuthVis]   = useState(false);
   const [cardVis, setCardVis]   = useState(false);
   const [panel, setPanel]       = useState("login"); // login | signup
   const [switching, setSwitching] = useState(false);
+  const [noti, setNoti] = useState();
   const [sweepTarget, setSweepTarget] = useState(null);
   const [lEmail, setLEmail] = useState(""); const [lPass, setLPass]   = useState("");
   const [lAlert, setLAlert] = useState(null); const [lLoad, setLLoad]  = useState(false);
@@ -41,29 +43,62 @@ function AuthCard({ onLogin }) {
     onLogin();
   }, [lEmail, lPass, onLogin]);
 
-  const handleSignup = useCallback(async (e) => {
-    e.preventDefault();
-    try{
-      await createUserWithEmailAndPassword(auth,sEmail,sPass);
-      const user = auth.currentUser;
-      if(user){
-        await setDoc(doc(db,"Users",user.uid),{
-          email:user.email,
-          firstName:sName,
-        });
-      }
+ const handleSignup = useCallback(async (e) => {
+  e.preventDefault();
 
-    }catch(error){
-      console.log(error.message);
-    }
-    setSAlert(null);
-    if (!sName || !sEmail || !sPass) { setSAlert({ msg: "ALL BIOMETRIC FIELDS REQUIRED", err: true }); return; }
-    if (sPass.length < 6) { setSAlert({ msg: "ENCRYPTION KEY TOO SHORT — MIN 6 CHARS", err: true }); return; }
+  // ✅ Validation
+  if (!sName || !sEmail || !sPass) {
+    setSAlert({ msg: "ALL BIOMETRIC FIELDS REQUIRED", err: true });
+    return;
+  }
+
+  if (sPass.length < 6) {
+    setSAlert({ msg: "ENCRYPTION KEY TOO SHORT — MIN 6 CHARS", err: true });
+    return;
+  }
+
+  try {
     setSLoad(true);
-    await delay(2400);
+
+    // create firebase user
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      sEmail,
+      sPass
+    );
+
+    const user = userCredential.user;
+
+    // store user in firestore
+    await setDoc(doc(db, "Users", user.uid), {
+      uid: user.uid,
+      email: user.email,
+      firstName: sName,
+      createdAt: new Date()
+    });
+
+    setSAlert({
+      msg: "IDENTITY REGISTERED — WELCOME TO STARK INDUSTRIES",
+      err: false
+    });
+
+    // reset form
+    setSName("");
+    setSEmail("");
+    setSPass("");
+
+  } catch (error) {
+
+    toast.error(error.message, {
+      position: "bottom-center",
+      autoClose: 2000
+    });
+
+  } finally {
     setSLoad(false);
-    setSAlert({ msg: "IDENTITY REGISTERED — WELCOME TO STARK INDUSTRIES", err: false });
-  }, [sName, sEmail, sPass, sConf]);
+  }
+
+}, [sName, sEmail, sPass]);
 
   const cardClass = `auth-card${cardVis ? " vis" : ""} ${panel === "login" ? "login-active" : "signup-active"}`;
 
