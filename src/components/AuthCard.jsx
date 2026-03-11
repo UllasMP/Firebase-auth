@@ -1,6 +1,6 @@
 ﻿import { useCallback, useEffect, useState } from "react";
 import { delay } from "../utils/delay";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { auth ,db} from "./firebase";
 import { setDoc,doc } from "firebase/firestore";
 import { toast } from "react-toastify"
@@ -37,10 +37,21 @@ function AuthCard({ onLogin }) {
     e.preventDefault();
     setLAlert(null);
     if (!lEmail || !lPass) { setLAlert({ msg: "AUTHORIZATION FIELDS INCOMPLETE", err: true }); return; }
-    setLLoad(true);
-    await delay(2000);
-    setLLoad(false);
-    onLogin();
+    setLLoad(true)
+      await delay(1000)
+      setLLoad(false)
+   /* try{
+      await signInWithEmailAndPassword(auth,lEmail,lPass);
+      onLogin() 
+    }catch(error){
+       toast.error(error.message, {
+       position: "bottom-center",
+       autoClose: 2000
+      });
+
+    }*/
+   onLogin() 
+    
   }, [lEmail, lPass, onLogin]);
 
  const handleSignup = useCallback(async (e) => {

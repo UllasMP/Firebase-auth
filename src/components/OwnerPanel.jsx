@@ -1,4 +1,9 @@
-﻿function OwnerPanel({ visible, statBarsReady }) {
+﻿import React,{useEffect,useState} from "react";
+import { auth , db } from "./firebase";
+import { getDoc , doc } from "firebase/firestore";
+import { toast } from "react-toastify";
+
+function OwnerPanel({ visible, statBarsReady }) {
   /* ── REPLACE OWNER PHOTO ──────────────────────────────────
      To add your photo, replace the placeholder div with:
      <img className="own-photo-img" src="YOUR_PHOTO_URL" alt="Owner" />
@@ -21,7 +26,9 @@
       <div className="own-corner tl" /><div className="own-corner tr" />
       <div className="own-corner bl" /><div className="own-corner br" />
       <div className="own-scan" />
-      <div className="own-sys-label"><div className="own-sys-dot" />OPERATOR IDENTITY VERIFIED</div>
+      <div className="own-sys-label"><div className="own-sys-dot" />OPERATOR IDENTITY VERIFIED
+      ullas <br />ggggsdfdfdfd</div><br />
+      
       <div className="own-photo-wrap">
         <div className="own-photo-frame">
           {OWNER.photoUrl
