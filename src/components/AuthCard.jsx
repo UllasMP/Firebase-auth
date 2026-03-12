@@ -5,6 +5,7 @@ import { auth ,db} from "./firebase";
 import { setDoc,doc } from "firebase/firestore";
 import { toast } from "react-toastify"
 
+
 function AuthCard({ onLogin }) {
   const [authVis, setAuthVis]   = useState(false);
   const [cardVis, setCardVis]   = useState(false);
@@ -40,7 +41,7 @@ function AuthCard({ onLogin }) {
     setLLoad(true)
       await delay(1000)
       setLLoad(false)
-   /* try{
+    try{
       await signInWithEmailAndPassword(auth,lEmail,lPass);
       onLogin() 
     }catch(error){
@@ -49,8 +50,7 @@ function AuthCard({ onLogin }) {
        autoClose: 2000
       });
 
-    }*/
-   onLogin() 
+    }
     
   }, [lEmail, lPass, onLogin]);
 

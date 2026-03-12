@@ -20,6 +20,18 @@ function OwnerPanel({ visible, statBarsReady }) {
     ],
     tags: ["AVENGER","GENIUS","BILLIONAIRE","PLAYBOY","PHILANTHROPIST","ARC REACTOR"],
   };
+  async function handlelogout() {
+    try{
+      await auth.signOut();
+      window.location.href = "/starkauth"
+
+
+    }catch(error){
+      console.log(error.me)
+
+    }
+    
+  }
 
   return (
     <div className={`gal-owner-side${visible ? " vis" : ""}`}>
@@ -66,6 +78,11 @@ function OwnerPanel({ visible, statBarsReady }) {
         <div className="own-status-row">
           <div className="own-status-led" />
           <div className="own-status-text">CLEARANCE LEVEL: ALPHA</div>
+          <div className="own-status-text">
+             <button style={{background:"#07144b",color:"yellow",width:"50px"}} onClick={handlelogout}>Logout</button>
+           
+          </div>
+          
         </div>
       </div>
     </div>

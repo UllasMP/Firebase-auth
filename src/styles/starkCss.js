@@ -279,7 +279,7 @@ html,body{width:100%;height:100%;overflow:hidden}
 .own-tag:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 8px rgba(0,234,255,.2)}
 .own-status-row{display:flex;align-items:center;gap:7px;padding-top:8px;border-top:1px solid rgba(0,234,255,.07)}
 .own-status-led{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:statusBlink 2s ease-in-out infinite;box-shadow:0 0 7px var(--gold)}
-.own-status-text{font-family:var(--F3);font-size:6px;letter-spacing:3px;color:rgba(255,215,0,.6)}
+.own-status-text{font-family:var(--F3);font-size:8px;letter-spacing:3px;color:rgba(255,215,0,.6)}
 .gal-bg-glow{position:absolute;border-radius:50%;pointer-events:none;transition:all 1.4s ease;filter:blur(90px)}
 
 /* ── RESPONSIVE ─────────────────────────────── */
