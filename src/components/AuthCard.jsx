@@ -203,4 +203,3 @@ function AuthCard({ onLogin }) {
 ══════════════════════════════════════════════════════════════ */
 
 export default AuthCard;
-

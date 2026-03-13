@@ -31,48 +31,37 @@ export default function App() {
 
   const [user, setUser] = useState(null);
 
-  // Firebase auth listener
+  // 🔐 Firebase auth listener
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((u) => {
+    const unsub = auth.onAuthStateChanged((u) => {
       setUser(u);
     });
-
-    return () => unsubscribe();
+    return () => unsub();
   }, []);
 
-  // Inject Stark fonts + css
+  // 🎨 Inject theme css
   useEffect(() => {
-
     injectStarkFonts();
-
     const el = document.createElement("style");
     el.id = "stark-css";
     el.textContent = STARK_CSS;
-
     document.head.appendChild(el);
-
     return () => el.remove();
-
   }, []);
 
-  // Background animation control
   const onBg = useCallback((key) => {
-    setBg((prev) => ({
-      ...prev,
-      [key]: true
-    }));
+    setBg(prev => ({ ...prev, [key]: true }));
   }, []);
 
   return (
     <div className="stark-root">
 
       <ToastContainer />
-
       <Background {...bg} />
 
       <Routes>
 
-        {/* Intro Screen */}
+        {/* Intro */}
         <Route
           path="/"
           element={
@@ -83,42 +72,43 @@ export default function App() {
           }
         />
 
-        {/* Login / Register */}
+        {/* Login */}
         <Route
           path="/starkauth"
           element={
-            <AuthCard
-              onLogin={() => navigate("/starkauth/home")}
-            />
+            user
+              ? <Navigate to="/starkauth/home" replace />
+              : <AuthCard onLogin={() => navigate("/starkauth/home")} />
           }
         />
 
-        {/* Protected Home */}
+        {/* 🔐 Protected Home */}
         <Route
           path="/starkauth/home"
           element={
             user ? (
               <>
                 {phase === "video" && (
-                  <VideoScene
-                    onDone={() => setPhase("gallery")}
-                  />
+                  <VideoScene onDone={() => setPhase("gallery")} />
                 )}
-
-                {phase === "gallery" && (
-                  <SuitGallery />
-                )}
+                {phase === "gallery" && <SuitGallery />}
               </>
             ) : (
-              <Navigate to="/starkauth" />
+              <Navigate to="/starkauth" replace />
             )
           }
         />
 
-        {/* Fallback */}
+        {/* ⭐ Lock logged user inside home */}
+        <Route
+          path="/starkauth/home/*"
+          element={<Navigate to="/starkauth/home" replace />}
+        />
+
+        {/* 🌍 Global fallback */}
         <Route
           path="*"
-          element={<Navigate to="/" />}
+          element={<Navigate to="/" replace />}
         />
 
       </Routes>
