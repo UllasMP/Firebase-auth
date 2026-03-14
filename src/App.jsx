@@ -30,8 +30,14 @@ export default function App() {
   });
 
   const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([]);
 
-  // 🔐 Firebase auth listener
+  useEffect(() => {
+    auth.onAuthStateChanged((u) => {
+      setUsers(u);
+    });
+  }, []);
+  //  Firebase auth listener
   useEffect(() => {
     const unsub = auth.onAuthStateChanged((u) => {
       setUser(u);
@@ -39,7 +45,7 @@ export default function App() {
     return () => unsub();
   }, []);
 
-  // 🎨 Inject theme css
+  //  Inject theme css
   useEffect(() => {
     injectStarkFonts();
     const el = document.createElement("style");
@@ -65,10 +71,14 @@ export default function App() {
         <Route
           path="/"
           element={
-            <IntroScreen
-              onDone={() => navigate("/starkauth")}
-              onBg={onBg}
-            />
+            user ? (
+              <Navigate to="/starkauth/home" replace />
+            ) : (
+              <IntroScreen
+                onDone={() => navigate("/starkauth")}
+                onBg={onBg}
+              />
+            )
           }
         />
 
@@ -82,7 +92,7 @@ export default function App() {
           }
         />
 
-        {/* 🔐 Protected Home */}
+        {/* Protected Home */}
         <Route
           path="/starkauth/home"
           element={
@@ -99,13 +109,13 @@ export default function App() {
           }
         />
 
-        {/* ⭐ Lock logged user inside home */}
+        {/*  Lock logged user inside home */}
         <Route
           path="/starkauth/home/*"
           element={<Navigate to="/starkauth/home" replace />}
         />
 
-        {/* 🌍 Global fallback */}
+        {/*  Global fallback */}
         <Route
           path="*"
           element={<Navigate to="/" replace />}

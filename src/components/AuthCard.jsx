@@ -11,7 +11,6 @@ function AuthCard({ onLogin }) {
   const [cardVis, setCardVis]   = useState(false);
   const [panel, setPanel]       = useState("login"); // login | signup
   const [switching, setSwitching] = useState(false);
-  const [noti, setNoti] = useState();
   const [sweepTarget, setSweepTarget] = useState(null);
   const [lEmail, setLEmail] = useState(""); const [lPass, setLPass]   = useState("");
   const [lAlert, setLAlert] = useState(null); const [lLoad, setLLoad]  = useState(false);
@@ -198,8 +197,5 @@ function AuthCard({ onLogin }) {
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
-   VIDEO SCENE
-══════════════════════════════════════════════════════════════ */
 
 export default AuthCard;
