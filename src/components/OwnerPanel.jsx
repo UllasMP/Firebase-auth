@@ -39,7 +39,8 @@ function OwnerPanel({ visible, statBarsReady }) {
       <div className="own-corner bl" /><div className="own-corner br" />
       <div className="own-scan" />
       <div className="own-sys-label"><div className="own-sys-dot" />OPERATOR IDENTITY VERIFIED
-      ullas <br />ggggsdfdfdfd</div><br />
+      ullas <br /> </div><br />
+      <div className="own-sys-label"><button style={{background:"#07144b",color:"yellow",width:"50px"}} onClick={handlelogout}>Logout</button></div>
       
       <div className="own-photo-wrap">
         <div className="own-photo-frame">
@@ -78,10 +79,7 @@ function OwnerPanel({ visible, statBarsReady }) {
         <div className="own-status-row">
           <div className="own-status-led" />
           <div className="own-status-text">CLEARANCE LEVEL: ALPHA</div>
-          <div className="own-status-text">
-             <button style={{background:"#07144b",color:"yellow",width:"50px"}} onClick={handlelogout}>Logout</button>
-           
-          </div>
+         
           
         </div>
       </div>
