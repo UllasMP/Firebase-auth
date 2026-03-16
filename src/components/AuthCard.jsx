@@ -1,6 +1,6 @@
 ﻿import { useCallback, useEffect, useState } from "react";
 import { delay } from "../utils/delay";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth ,db} from "./firebase";
 import { setDoc,doc } from "firebase/firestore";
 import { toast } from "react-toastify"
@@ -55,8 +55,9 @@ function AuthCard({ onLogin }) {
 
  const handleSignup = useCallback(async (e) => {
   e.preventDefault();
+  setSAlert(null);
+  setLAlert(null);
 
-  // ✅ Validation
   if (!sName || !sEmail || !sPass) {
     setSAlert({ msg: "ALL BIOMETRIC FIELDS REQUIRED", err: true });
     return;
@@ -70,16 +71,9 @@ function AuthCard({ onLogin }) {
   try {
     setSLoad(true);
 
-    // create firebase user
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      sEmail,
-      sPass
-    );
-
+    const userCredential = await createUserWithEmailAndPassword(auth, sEmail, sPass);
     const user = userCredential.user;
 
-    // store user in firestore
     await setDoc(doc(db, "Users", user.uid), {
       uid: user.uid,
       email: user.email,
@@ -87,29 +81,33 @@ function AuthCard({ onLogin }) {
       createdAt: new Date()
     });
 
-    setSAlert({
-      msg: "IDENTITY REGISTERED — WELCOME TO STARK INDUSTRIES",
+    // 🔴 Important: Sign out the user after signup
+    await signOut(auth);
+
+    // Switch to login panel
+    setPanel("login");
+
+    // show success message
+    setLAlert({
+      msg: "SIGNUP SUCCESSFUL - PLEASE LOGIN",
       err: false
     });
 
-    // reset form
+    // clear signup fields
     setSName("");
     setSEmail("");
     setSPass("");
 
   } catch (error) {
-
     toast.error(error.message, {
       position: "bottom-center",
       autoClose: 2000
     });
-
   } finally {
     setSLoad(false);
   }
 
 }, [sName, sEmail, sPass]);
-
   const cardClass = `auth-card${cardVis ? " vis" : ""} ${panel === "login" ? "login-active" : "signup-active"}`;
 
   return (

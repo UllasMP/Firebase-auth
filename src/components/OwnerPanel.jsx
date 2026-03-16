@@ -8,6 +8,7 @@ function OwnerPanel({ visible, statBarsReady }) {
      To add your photo, replace the placeholder div with:
      <img className="own-photo-img" src="YOUR_PHOTO_URL" alt="Owner" />
   ─────────────────────────────────────────────────────────── */
+  const [userData, setUserData] = useState(null);
   const OWNER = {
     photoUrl: null,            // ← set to your image URL
     name: "TONY STARK",
@@ -20,6 +21,24 @@ function OwnerPanel({ visible, statBarsReady }) {
     ],
     tags: ["AVENGER","GENIUS","BILLIONAIRE","PLAYBOY","PHILANTHROPIST","ARC REACTOR"],
   };
+
+  const fetchUserData = async () => {
+    auth.onAuthStateChanged(async (user) => {
+      console.log("Auth state changed:", user);
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setUserData(docSnap.data()); 
+        console.log("User data fetched:", docSnap.data());
+      } else {
+        console.log("No such document!");
+      }
+    });
+  }
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
   async function handlelogout() {
     try{
       await auth.signOut();
@@ -38,9 +57,22 @@ function OwnerPanel({ visible, statBarsReady }) {
       <div className="own-corner tl" /><div className="own-corner tr" />
       <div className="own-corner bl" /><div className="own-corner br" />
       <div className="own-scan" />
-      <div className="own-sys-label"><div className="own-sys-dot" />OPERATOR IDENTITY VERIFIED
-      ullas <br /> </div><br />
-      <div className="own-sys-label"><button style={{background:"#07144b",color:"yellow",width:"50px"}} onClick={handlelogout}>Logout</button></div>
+      <div className="own-sys-label">
+        <div className="own-sys-head">
+          <div className="own-sys-dot" />
+          <span>OPERATOR IDENTITY VERIFIED</span>
+        </div>
+        {userData ? (
+          <><div className="own-sys-user">{userData.email}</div>
+          <div className="own-sys-user">{userData.firstName}</div>
+          <div className="own-sys-user">{userData.createdAt}</div>
+         </>): (
+          <div className="own-sys-user">Loading...</div>
+        )}
+        <div className="own-sys-user">ullas</div>
+        <button className="own-logout-btn" onClick={handlelogout}>Logout</button>
+      </div>
+      
       
       <div className="own-photo-wrap">
         <div className="own-photo-frame">
