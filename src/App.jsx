@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
 import AuthCard from "./components/AuthCard";
@@ -16,11 +16,9 @@ import { ToastContainer } from "react-toastify";
 import { auth } from "./components/firebase";
 
 export default function App() {
-
   const navigate = useNavigate();
 
   const [phase, setPhase] = useState("video");
-
   const [bg, setBg] = useState({
     bgOn: false,
     arcOn: false,
@@ -28,24 +26,16 @@ export default function App() {
     hexOn: false,
     scanOn: false
   });
-
   const [user, setUser] = useState(null);
-  const [users, setUsers] = useState([]);
 
-  useEffect(() => {
-    auth.onAuthStateChanged((u) => {
-      setUsers(u);
-    });
-  }, []);
-  //  Firebase auth listener
   useEffect(() => {
     const unsub = auth.onAuthStateChanged((u) => {
       setUser(u);
     });
+
     return () => unsub();
   }, []);
 
-  //  Inject theme css
   useEffect(() => {
     injectStarkFonts();
     const el = document.createElement("style");
@@ -56,33 +46,29 @@ export default function App() {
   }, []);
 
   const onBg = useCallback((key) => {
-    setBg(prev => ({ ...prev, [key]: true }));
+    setBg((prev) => ({ ...prev, [key]: true }));
   }, []);
+
+  const handleIntroDone = useCallback(() => {
+    navigate(user ? "/starkauth/home" : "/starkauth");
+  }, [navigate, user]);
 
   return (
     <div className="stark-root">
-
       <ToastContainer />
       <Background {...bg} />
 
       <Routes>
-
-        {/* Intro */}
         <Route
           path="/"
           element={
-            user ? (
-              <Navigate to="/starkauth/home" replace />
-            ) : (
-              <IntroScreen
-                onDone={() => navigate("/starkauth")}
-                onBg={onBg}
-              />
-            )
+            <IntroScreen
+              onDone={handleIntroDone}
+              onBg={onBg}
+            />
           }
         />
 
-        {/* Login */}
         <Route
           path="/starkauth"
           element={
@@ -92,7 +78,6 @@ export default function App() {
           }
         />
 
-        {/* Protected Home */}
         <Route
           path="/starkauth/home"
           element={
@@ -109,20 +94,16 @@ export default function App() {
           }
         />
 
-        {/*  Lock logged user inside home */}
         <Route
           path="/starkauth/home/*"
           element={<Navigate to="/starkauth/home" replace />}
         />
 
-        {/*  Global fallback */}
         <Route
           path="*"
           element={<Navigate to="/" replace />}
         />
-
       </Routes>
-
     </div>
   );
 }

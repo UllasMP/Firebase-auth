@@ -1,28 +1,35 @@
-﻿import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { delay } from "../utils/delay";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { auth ,db} from "./firebase";
-import { setDoc,doc } from "firebase/firestore";
-import { toast } from "react-toastify"
-
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "./firebase";
+import { setDoc, doc } from "firebase/firestore";
+import { toast } from "react-toastify";
 
 function AuthCard({ onLogin }) {
-  const [authVis, setAuthVis]   = useState(false);
-  const [cardVis, setCardVis]   = useState(false);
-  const [panel, setPanel]       = useState("login"); // login | signup
+  const [authVis, setAuthVis] = useState(false);
+  const [cardVis, setCardVis] = useState(false);
+  const [panel, setPanel] = useState("login");
   const [switching, setSwitching] = useState(false);
   const [sweepTarget, setSweepTarget] = useState(null);
-  const [lEmail, setLEmail] = useState(""); const [lPass, setLPass]   = useState("");
-  const [lAlert, setLAlert] = useState(null); const [lLoad, setLLoad]  = useState(false);
-  const [sName, setSName]   = useState(""); const [sEmail, setSEmail] = useState("");
-  const [sPass, setSPass]   = useState(""); const [sConf, setSConf]   = useState("");
-  const [sAlert, setSAlert] = useState(null); const [sLoad, setSLoad]  = useState(false);
+  const [lEmail, setLEmail] = useState("");
+  const [lPass, setLPass] = useState("");
+  const [lAlert, setLAlert] = useState(null);
+  const [lLoad, setLLoad] = useState(false);
+  const [sName, setSName] = useState("");
+  const [sEmail, setSEmail] = useState("");
+  const [sPass, setSPass] = useState("");
+  const [sAlert, setSAlert] = useState(null);
+  const [sLoad, setSLoad] = useState(false);
 
   useEffect(() => {
-    let t1, t2;
+    let t1;
+    let t2;
     t1 = setTimeout(() => setAuthVis(true), 50);
     t2 = setTimeout(() => setCardVis(true), 200);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, []);
 
   const switchPanel = useCallback((to) => {
@@ -30,91 +37,91 @@ function AuthCard({ onLogin }) {
     setSwitching(true);
     setSweepTarget(to);
     setPanel(to);
-    setTimeout(() => { setSwitching(false); setSweepTarget(null); }, 800);
+    setTimeout(() => {
+      setSwitching(false);
+      setSweepTarget(null);
+    }, 800);
   }, [switching, panel]);
 
   const handleLogin = useCallback(async (e) => {
     e.preventDefault();
     setLAlert(null);
-    if (!lEmail || !lPass) { setLAlert({ msg: "AUTHORIZATION FIELDS INCOMPLETE", err: true }); return; }
-    setLLoad(true)
-      await delay(1000)
-      setLLoad(false)
-    try{
-      await signInWithEmailAndPassword(auth,lEmail,lPass);
-      onLogin() 
-    }catch(error){
-       toast.error(error.message, {
-       position: "bottom-center",
-       autoClose: 2000
+
+    if (!lEmail || !lPass) {
+      setLAlert({ msg: "AUTHORIZATION FIELDS INCOMPLETE", err: true });
+      return;
+    }
+
+    setLLoad(true);
+    await delay(1000);
+
+    try {
+      await signInWithEmailAndPassword(auth, lEmail, lPass);
+      onLogin();
+    } catch (error) {
+      toast.error(error.message, {
+        position: "bottom-center",
+        autoClose: 2000
+      });
+    } finally {
+      setLLoad(false);
+    }
+  }, [lEmail, lPass, onLogin]);
+
+  const handleSignup = useCallback(async (e) => {
+    e.preventDefault();
+
+    if (!sName || !sEmail || !sPass) {
+      setSAlert({ msg: "ALL BIOMETRIC FIELDS REQUIRED", err: true });
+      return;
+    }
+
+    if (sPass.length < 6) {
+      setSAlert({ msg: "ENCRYPTION KEY TOO SHORT — MIN 6 CHARS", err: true });
+      return;
+    }
+
+    try {
+      setSLoad(true);
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        sEmail,
+        sPass
+      );
+
+      const user = userCredential.user;
+
+      await setDoc(doc(db, "Users", user.uid), {
+        uid: user.uid,
+        email: user.email,
+        firstName: sName,
+        createdAt: new Date()
       });
 
+      setSAlert({
+        msg: "IDENTITY REGISTERED — WELCOME TO STARK INDUSTRIES",
+        err: false
+      });
+
+      setSName("");
+      setSEmail("");
+      setSPass("");
+    } catch (error) {
+      toast.error(error.message, {
+        position: "bottom-center",
+        autoClose: 2000
+      });
+    } finally {
+      setSLoad(false);
     }
-    
-  }, [lEmail, lPass, onLogin]);
-  
-  const handleSignup = useCallback(async (e) => {
-  e.preventDefault();
+  }, [sName, sEmail, sPass]);
 
-  // ✅ Validation
-  if (!sName || !sEmail || !sPass) {
-    setSAlert({ msg: "ALL BIOMETRIC FIELDS REQUIRED", err: true });
-    return;
-  }
-
-  if (sPass.length < 6) {
-    setSAlert({ msg: "ENCRYPTION KEY TOO SHORT — MIN 6 CHARS", err: true });
-    return;
-  }
-
-  try {
-    setSLoad(true);
-
-    // create firebase user
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      sEmail,
-      sPass
-    );
-
-    const user = userCredential.user;
-
-    // store user in firestore
-    await setDoc(doc(db, "Users", user.uid), {
-      uid: user.uid,
-      email: user.email,
-      firstName: sName,
-      createdAt: new Date()
-    });
-
-    setSAlert({
-      msg: "IDENTITY REGISTERED — WELCOME TO STARK INDUSTRIES",
-      err: false
-    });
-
-    // reset form
-    setSName("");
-    setSEmail("");
-    setSPass("");
-
-  } catch (error) {
-
-    toast.error(error.message, {
-      position: "bottom-center",
-      autoClose: 2000
-    });
-
-  } finally {
-    setSLoad(false);
-  }
-
-}, [sName, sEmail, sPass]);
   const cardClass = `auth-card${cardVis ? " vis" : ""} ${panel === "login" ? "login-active" : "signup-active"}`;
 
   return (
     <div className={`si-auth${authVis ? " vis" : ""}`}>
       <div className={cardClass}>
-        {/* LOGIN PANEL */}
         <div className="panel login-p">
           {sweepTarget === "login" && <div className="red-sweep" />}
           <div className="p-inner">
@@ -130,16 +137,12 @@ function AuthCard({ onLogin }) {
             <form onSubmit={handleLogin} style={{ flex: 1 }}>
               {lAlert && <div className={`salert${lAlert.err ? "" : " ssuccess"}`}>{lAlert.msg}</div>}
               <div className="fg">
-                <input className="fi" type="email" placeholder=" " value={lEmail} onChange={e => { setLEmail(e.target.value); setLAlert(null); }} autoComplete="off" disabled={panel !== "login" || lLoad} />
+                <input className="fi" type="email" placeholder=" " value={lEmail} onChange={(e) => { setLEmail(e.target.value); setLAlert(null); }} autoComplete="off" disabled={panel !== "login" || lLoad} />
                 <label className="fl">IDENTITY CODE (EMAIL)</label>
                 <div className="ul" /><div className="ia" />
               </div>
               <div className="fg">
-                <input className="fi" 
-                        type="password" 
-                        placeholder=" " 
-                        value={lPass} 
-                        onChange={e => { setLPass(e.target.value); setLAlert(null); }} autoComplete="off"  />
+                <input className="fi" type="password" placeholder=" " value={lPass} onChange={(e) => { setLPass(e.target.value); setLAlert(null); }} autoComplete="off" />
                 <label className="fl">ENCRYPTION KEY (PASSWORD)</label>
                 <div className="ul" /><div className="ia" />
               </div>
@@ -153,10 +156,8 @@ function AuthCard({ onLogin }) {
           </div>
         </div>
 
-        {/* DIVIDER */}
         <div className="divider"><div className="div-icon" onClick={() => switchPanel(panel === "login" ? "signup" : "login")}><div className="div-inner" /></div></div>
 
-        {/* SIGNUP PANEL */}
         <div className="panel signup-p">
           {sweepTarget === "signup" && <div className="red-sweep" />}
           <div className="p-inner">
@@ -177,7 +178,7 @@ function AuthCard({ onLogin }) {
                 [sPass, setSPass, "password", "ENCRYPTION KEY"],
               ].map(([val, setter, type, label]) => (
                 <div key={label} className="fg">
-                  <input className="fi" type={type} placeholder=" " value={val} onChange={e => { setter(e.target.value); setSAlert(null); }} autoComplete="off" disabled={panel !== "signup" || sLoad} />
+                  <input className="fi" type={type} placeholder=" " value={val} onChange={(e) => { setter(e.target.value); setSAlert(null); }} autoComplete="off" disabled={panel !== "signup" || sLoad} />
                   <label className="fl">{label}</label>
                   <div className="ul" style={{ background: "var(--gold)", boxShadow: "0 0 8px var(--gold)" }} /><div className="ia" />
                 </div>
@@ -195,6 +196,5 @@ function AuthCard({ onLogin }) {
     </div>
   );
 }
-
 
 export default AuthCard;
