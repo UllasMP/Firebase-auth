@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { delay } from "../utils/delay";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "./firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { setDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify";
+
+import { delay } from "../utils/delay";
+import { auth, db } from "./firebase";
 
 function AuthCard({ onLogin }) {
   const [authVis, setAuthVis] = useState(false);
   const [cardVis, setCardVis] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const [panel, setPanel] = useState("login");
   const [switching, setSwitching] = useState(false);
   const [sweepTarget, setSweepTarget] = useState(null);
@@ -22,10 +24,9 @@ function AuthCard({ onLogin }) {
   const [sLoad, setSLoad] = useState(false);
 
   useEffect(() => {
-    let t1;
-    let t2;
-    t1 = setTimeout(() => setAuthVis(true), 50);
-    t2 = setTimeout(() => setCardVis(true), 200);
+    const t1 = setTimeout(() => setAuthVis(true), 50);
+    const t2 = setTimeout(() => setCardVis(true), 200);
+
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -33,7 +34,7 @@ function AuthCard({ onLogin }) {
   }, []);
 
   const switchPanel = useCallback((to) => {
-    if (switching || to === panel) return;
+    if (switching || leaving || to === panel) return;
     setSwitching(true);
     setSweepTarget(to);
     setPanel(to);
@@ -41,7 +42,14 @@ function AuthCard({ onLogin }) {
       setSwitching(false);
       setSweepTarget(null);
     }, 800);
-  }, [switching, panel]);
+  }, [switching, leaving, panel]);
+
+  const animateExit = useCallback(async () => {
+    setLeaving(true);
+    setCardVis(false);
+    setAuthVis(false);
+    await delay(520);
+  }, []);
 
   const handleLogin = useCallback(async (e) => {
     e.preventDefault();
@@ -52,24 +60,26 @@ function AuthCard({ onLogin }) {
       return;
     }
 
-    setLLoad(true);
-    await delay(1000);
-
     try {
+      setLLoad(true);
+      await delay(900);
       await signInWithEmailAndPassword(auth, lEmail, lPass);
+      await animateExit();
       onLogin();
     } catch (error) {
       toast.error(error.message, {
         position: "bottom-center",
         autoClose: 2000
       });
+      setLeaving(false);
     } finally {
       setLLoad(false);
     }
-  }, [lEmail, lPass, onLogin]);
+  }, [animateExit, lEmail, lPass, onLogin]);
 
   const handleSignup = useCallback(async (e) => {
     e.preventDefault();
+    setSAlert(null);
 
     if (!sName || !sEmail || !sPass) {
       setSAlert({ msg: "ALL BIOMETRIC FIELDS REQUIRED", err: true });
@@ -77,7 +87,7 @@ function AuthCard({ onLogin }) {
     }
 
     if (sPass.length < 6) {
-      setSAlert({ msg: "ENCRYPTION KEY TOO SHORT — MIN 6 CHARS", err: true });
+      setSAlert({ msg: "ENCRYPTION KEY TOO SHORT - MIN 6 CHARS", err: true });
       return;
     }
 
@@ -99,14 +109,19 @@ function AuthCard({ onLogin }) {
         createdAt: new Date()
       });
 
+      await signOut(auth);
+
       setSAlert({
-        msg: "IDENTITY REGISTERED — WELCOME TO STARK INDUSTRIES",
+        msg: "IDENTITY REGISTERED - LOGIN TO CONTINUE",
         err: false
       });
 
+      setLEmail(sEmail);
       setSName("");
       setSEmail("");
       setSPass("");
+      await delay(500);
+      switchPanel("login");
     } catch (error) {
       toast.error(error.message, {
         position: "bottom-center",
@@ -115,12 +130,12 @@ function AuthCard({ onLogin }) {
     } finally {
       setSLoad(false);
     }
-  }, [sName, sEmail, sPass]);
+  }, [sEmail, sName, sPass, switchPanel]);
 
-  const cardClass = `auth-card${cardVis ? " vis" : ""} ${panel === "login" ? "login-active" : "signup-active"}`;
+  const cardClass = `auth-card${cardVis ? " vis" : ""}${leaving ? " exiting" : ""} ${panel === "login" ? "login-active" : "signup-active"}`;
 
   return (
-    <div className={`si-auth${authVis ? " vis" : ""}`}>
+    <div className={`si-auth${authVis ? " vis" : ""}${leaving ? " hide" : ""}`}>
       <div className={cardClass}>
         <div className="panel login-p">
           {sweepTarget === "login" && <div className="red-sweep" />}
@@ -137,21 +152,21 @@ function AuthCard({ onLogin }) {
             <form onSubmit={handleLogin} style={{ flex: 1 }}>
               {lAlert && <div className={`salert${lAlert.err ? "" : " ssuccess"}`}>{lAlert.msg}</div>}
               <div className="fg">
-                <input className="fi" type="email" placeholder=" " value={lEmail} onChange={(e) => { setLEmail(e.target.value); setLAlert(null); }} autoComplete="off" disabled={panel !== "login" || lLoad} />
+                <input className="fi" type="email" placeholder=" " value={lEmail} onChange={(e) => { setLEmail(e.target.value); setLAlert(null); }} autoComplete="off" disabled={panel !== "login" || lLoad || leaving} />
                 <label className="fl">IDENTITY CODE (EMAIL)</label>
                 <div className="ul" /><div className="ia" />
               </div>
               <div className="fg">
-                <input className="fi" type="password" placeholder=" " value={lPass} onChange={(e) => { setLPass(e.target.value); setLAlert(null); }} autoComplete="off" />
+                <input className="fi" type="password" placeholder=" " value={lPass} onChange={(e) => { setLPass(e.target.value); setLAlert(null); }} autoComplete="off" disabled={panel !== "login" || lLoad || leaving} />
                 <label className="fl">ENCRYPTION KEY (PASSWORD)</label>
                 <div className="ul" /><div className="ia" />
               </div>
-              <button type="submit" className={`sbtn${lLoad ? " ld" : ""}`} disabled={panel !== "login" || lLoad}>
+              <button type="submit" className={`sbtn${lLoad ? " ld" : ""}`} disabled={panel !== "login" || lLoad || leaving}>
                 <span className="btn-t">INITIATE ACCESS</span>
                 <div className="btn-ld"><div className="larc" /></div>
               </button>
             </form>
-            <div className="sw-link">NO CREDENTIALS?&nbsp;<button type="button" className="sw-btn" onClick={() => switchPanel("signup")}>REGISTER IDENTITY</button></div>
+            <div className="sw-link">NO CREDENTIALS?&nbsp;<button type="button" className="sw-btn" onClick={() => switchPanel("signup")} disabled={leaving}>REGISTER IDENTITY</button></div>
             <div className="sbar"><div className="sind" /><div className="sind r" /><div className="sind g" /><span className="stxt">JARVIS SECURITY LAYER ACTIVE</span></div>
           </div>
         </div>
@@ -178,17 +193,17 @@ function AuthCard({ onLogin }) {
                 [sPass, setSPass, "password", "ENCRYPTION KEY"],
               ].map(([val, setter, type, label]) => (
                 <div key={label} className="fg">
-                  <input className="fi" type={type} placeholder=" " value={val} onChange={(e) => { setter(e.target.value); setSAlert(null); }} autoComplete="off" disabled={panel !== "signup" || sLoad} />
+                  <input className="fi" type={type} placeholder=" " value={val} onChange={(e) => { setter(e.target.value); setSAlert(null); }} autoComplete="off" disabled={panel !== "signup" || sLoad || leaving} />
                   <label className="fl">{label}</label>
                   <div className="ul" style={{ background: "var(--gold)", boxShadow: "0 0 8px var(--gold)" }} /><div className="ia" />
                 </div>
               ))}
-              <button type="submit" className={`sbtn${sLoad ? " ld" : ""}`} style={{ borderColor: "var(--gold)", marginTop: 5 }} disabled={panel !== "signup" || sLoad}>
+              <button type="submit" className={`sbtn${sLoad ? " ld" : ""}`} style={{ borderColor: "var(--gold)", marginTop: 5 }} disabled={panel !== "signup" || sLoad || leaving}>
                 <span className="btn-t">REGISTER IDENTITY</span>
                 <div className="btn-ld"><div className="larc" /></div>
               </button>
             </form>
-            <div className="sw-link">ALREADY REGISTERED?&nbsp;<button type="button" className="sw-btn" onClick={() => switchPanel("login")}>ACCESS SYSTEM</button></div>
+            <div className="sw-link">ALREADY REGISTERED?&nbsp;<button type="button" className="sw-btn" onClick={() => switchPanel("login")} disabled={leaving}>ACCESS SYSTEM</button></div>
             <div className="sbar"><div className="sind g" /><div className="sind" /><div className="sind r" /><span className="stxt">ENCRYPTION PROTOCOL ENABLED</span></div>
           </div>
         </div>

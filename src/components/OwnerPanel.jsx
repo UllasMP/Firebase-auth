@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { getDoc, doc } from "firebase/firestore";
 
 import { auth, db } from "./firebase";
 
-function OwnerPanel({ visible, statBarsReady }) {
+function OwnerPanel({ visible, statBarsReady, onLogout, isLoggingOut }) {
   const [userData, setUserData] = useState(null);
 
   const OWNER = {
     photoUrl: null,
     name: "TONY STARK",
-    title: "CEO · STARK INDUSTRIES · IRON MAN",
+    title: "CEO - STARK INDUSTRIES - IRON MAN",
     stats: [
       { label: "INTELLIGENCE", val: "97", w: "97%" },
       { label: "COMBAT", val: "88", w: "88%" },
-      { label: "ENGINEERING", val: "∞", w: "100%" },
+      { label: "ENGINEERING", val: "INF", w: "100%" },
       { label: "SUITS BUILT", val: "85+", w: "85%" }
     ],
     tags: ["AVENGER", "GENIUS", "BILLIONAIRE", "PLAYBOY", "PHILANTHROPIST", "ARC REACTOR"]
@@ -44,17 +44,8 @@ function OwnerPanel({ visible, statBarsReady }) {
     return () => unsubscribe();
   }, []);
 
-  async function handleLogout() {
-    try {
-      await auth.signOut();
-      window.location.href = "/starkauth";
-    } catch (error) {
-      console.log(error.message);
-    }
-  }
-
   return (
-    <div className={`gal-owner-side${visible ? " vis" : ""}`}>
+    <div className={`gal-owner-side${visible ? " vis" : ""}${isLoggingOut ? " exit" : ""}`}>
       <div className="own-corner tl" /><div className="own-corner tr" />
       <div className="own-corner bl" /><div className="own-corner br" />
       <div className="own-scan" />
@@ -76,8 +67,9 @@ function OwnerPanel({ visible, statBarsReady }) {
         ) : (
           <div className="own-sys-user">Loading...</div>
         )}
-        <div className="own-sys-user">ullas</div>
-        <button className="own-logout-btn" onClick={handleLogout}>Logout</button>
+        <button className={`own-logout-btn${isLoggingOut ? " busy" : ""}`} onClick={onLogout} disabled={isLoggingOut}>
+          {isLoggingOut ? "Logging Out..." : "Logout"}
+        </button>
       </div>
 
       <div className="own-photo-wrap">

@@ -14,11 +14,13 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
 import { auth } from "./components/firebase";
+import { signOut } from "firebase/auth";
 
 export default function App() {
   const navigate = useNavigate();
 
   const [phase, setPhase] = useState("video");
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [bg, setBg] = useState({
     bgOn: false,
     arcOn: false,
@@ -42,6 +44,7 @@ export default function App() {
     el.id = "stark-css";
     el.textContent = STARK_CSS;
     document.head.appendChild(el);
+
     return () => el.remove();
   }, []);
 
@@ -53,6 +56,19 @@ export default function App() {
     navigate(user ? "/starkauth/home" : "/starkauth");
   }, [navigate, user]);
 
+  const handleLogout = useCallback(async () => {
+    if (isLoggingOut) return;
+
+    try {
+      setIsLoggingOut(true);
+      await signOut(auth);
+      setPhase("video");
+      navigate("/starkauth", { replace: true });
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }, [isLoggingOut, navigate]);
+
   return (
     <div className="stark-root">
       <ToastContainer />
@@ -62,19 +78,25 @@ export default function App() {
         <Route
           path="/"
           element={
-            <IntroScreen
-              onDone={handleIntroDone}
-              onBg={onBg}
-            />
+            user ? (
+              <Navigate to="/starkauth/home" replace />
+            ) : (
+              <IntroScreen
+                onDone={handleIntroDone}
+                onBg={onBg}
+              />
+            )
           }
         />
 
         <Route
           path="/starkauth"
           element={
-            user
-              ? <Navigate to="/starkauth/home" replace />
-              : <AuthCard onLogin={() => navigate("/starkauth/home")} />
+            user ? (
+              <Navigate to="/starkauth/home" replace />
+            ) : (
+              <AuthCard onLogin={() => navigate("/starkauth/home")} />
+            )
           }
         />
 
@@ -83,10 +105,17 @@ export default function App() {
           element={
             user ? (
               <>
-                {phase === "video" && (
-                  <VideoScene onDone={() => setPhase("gallery")} />
+                <SuitGallery
+                  active={phase === "transition" || phase === "gallery"}
+                  onLogout={handleLogout}
+                  isLoggingOut={isLoggingOut}
+                />
+                {phase !== "gallery" && (
+                  <VideoScene
+                    onTransitionStart={() => setPhase("transition")}
+                    onDone={() => setPhase("gallery")}
+                  />
                 )}
-                {phase === "gallery" && <SuitGallery />}
               </>
             ) : (
               <Navigate to="/starkauth" replace />
