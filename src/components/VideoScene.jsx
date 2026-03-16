@@ -349,7 +349,7 @@ function VideoScene({ onDone }) {
             cancelAnimationFrame(rafRef.current);
             onEnd();
           }
-        } catch (_err) {
+        } catch {
           clearTimeout(hardTimeout);
           cancelAnimationFrame(rafRef.current);
           onEnd();

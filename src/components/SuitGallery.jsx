@@ -123,6 +123,7 @@ function SuitGallery() {
   useEffect(() => {
     const vp = viewportRef.current;
     if (!vp) return;
+    const scrollState = g.current;
 
     // Wheel
     const onWheel = (e) => {
@@ -209,7 +210,7 @@ function SuitGallery() {
       vp.removeEventListener("touchend", onTouchEnd);
       document.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("resize", onResize);
-      if (g.current.raf) cancelAnimationFrame(g.current.raf);
+      if (scrollState.raf) cancelAnimationFrame(scrollState.raf);
     };
   }, [scrollTo, clampX, nearestIdx, startRaf]);
 

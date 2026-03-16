@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { delay } from "../utils/delay";
 
 function IntroScreen({ onDone, onBg }) {
@@ -8,13 +8,13 @@ function IntroScreen({ onDone, onBg }) {
     title: false, sub: false, ready: false, prog: false, scanning: false,
   });
   const [titleText, setTitleText] = useState("");
-  const [subText, setSubText]     = useState("");
-  const [progress, setProgress]   = useState(0);
+  const [subText, setSubText] = useState("");
+  const [progress, setProgress] = useState(0);
   const progRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
-    const set = (patch) => { if (!cancelled) setS(p => ({ ...p, ...patch })); };
+    const set = (patch) => { if (!cancelled) setS((p) => ({ ...p, ...patch })); };
 
     async function run() {
       await delay(60);
@@ -39,7 +39,6 @@ function IntroScreen({ onDone, onBg }) {
       onBg("hexOn");
       onBg("scanOn");
 
-      // Progress ticker
       let prog = 0;
       progRef.current = setInterval(() => {
         prog = Math.min(prog + (100 / (5200 / 50)), 98);
@@ -85,7 +84,7 @@ function IntroScreen({ onDone, onBg }) {
       cancelled = true;
       clearInterval(progRef.current);
     };
-  }, []);
+  }, [onBg, onDone]);
 
   return (
     <div className={`si-intro${s.visible ? " boot-in" : ""}${s.exiting ? " hide" : ""}`}>
@@ -115,9 +114,4 @@ function IntroScreen({ onDone, onBg }) {
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
-   AUTH CARD
-══════════════════════════════════════════════════════════════ */
-
 export default IntroScreen;
-

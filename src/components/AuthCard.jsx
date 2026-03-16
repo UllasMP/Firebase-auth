@@ -52,12 +52,11 @@ function AuthCard({ onLogin }) {
     }
     
   }, [lEmail, lPass, onLogin]);
-
- const handleSignup = useCallback(async (e) => {
+  
+  const handleSignup = useCallback(async (e) => {
   e.preventDefault();
-  setSAlert(null);
-  setLAlert(null);
 
+  // ✅ Validation
   if (!sName || !sEmail || !sPass) {
     setSAlert({ msg: "ALL BIOMETRIC FIELDS REQUIRED", err: true });
     return;
@@ -71,9 +70,16 @@ function AuthCard({ onLogin }) {
   try {
     setSLoad(true);
 
-    const userCredential = await createUserWithEmailAndPassword(auth, sEmail, sPass);
+    // create firebase user
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      sEmail,
+      sPass
+    );
+
     const user = userCredential.user;
 
+    // store user in firestore
     await setDoc(doc(db, "Users", user.uid), {
       uid: user.uid,
       email: user.email,
@@ -81,28 +87,23 @@ function AuthCard({ onLogin }) {
       createdAt: new Date()
     });
 
-    // 🔴 Important: Sign out the user after signup
-    await signOut(auth);
-
-    // Switch to login panel
-    setPanel("login");
-
-    // show success message
-    setLAlert({
-      msg: "SIGNUP SUCCESSFUL - PLEASE LOGIN",
+    setSAlert({
+      msg: "IDENTITY REGISTERED — WELCOME TO STARK INDUSTRIES",
       err: false
     });
 
-    // clear signup fields
+    // reset form
     setSName("");
     setSEmail("");
     setSPass("");
 
   } catch (error) {
+
     toast.error(error.message, {
       position: "bottom-center",
       autoClose: 2000
     });
+
   } finally {
     setSLoad(false);
   }
