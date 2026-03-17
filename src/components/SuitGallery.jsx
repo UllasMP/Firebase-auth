@@ -233,6 +233,9 @@ function SuitGallery({ active = true, onLogout, isLoggingOut }) {
   }, [scrollTo, clampX, nearestIdx, startRaf, isLoggingOut]);
 
   const suit = SUITS[galCur];
+  const getSuitImages = (entry) => entry.images || (entry.image ? [entry.image] : []);
+  const getPartName = (part) => (typeof part === "string" ? part : part.name);
+  const getPartImage = (part) => (typeof part === "string" ? "" : part.image);
 
   return (
     <div className={`si-gallery${galVis ? " vis" : ""}${active ? " active" : ""}${isLoggingOut ? " exit" : ""}`}>
@@ -258,32 +261,62 @@ function SuitGallery({ active = true, onLogout, isLoggingOut }) {
         <div className="gal-suits-side">
           <div className="gal-viewport" ref={viewportRef}>
             <div className="gal-track" ref={trackRef}>
-              {SUITS.map((s, idx) => (
-                <div
-                  key={s.id}
-                  className={`suit-card${cardsIn[idx] ? " in" : ""}${idx === galCur ? " active-card" : ""}`}
-                  style={{ "--card-glow": s.glow, "--card-color": s.color }}
-                  onClick={() => {
-                    if (!isLoggingOut && Math.abs(g.current.x - g.current.target) < 4) scrollTo(idx);
-                  }}
-                >
-                  <div className="card-scan" />
-                  <div className="suit-visual">
-                    <div className="suit-3d" dangerouslySetInnerHTML={{ __html: buildSuitSVG(s, idx) }} />
-                  </div>
-                  <div className="suit-info">
-                    <div className="suit-year">{s.year}</div>
-                    <div className="suit-mark">{s.name}</div>
-                    <div className="suit-subname">{s.sub}</div>
-                    <div className="suit-parts">
-                      {s.parts.map((p) => <div key={p} className="suit-part-tag">{p}</div>)}
+              {SUITS.map((s, idx) => {
+                const suitImages = getSuitImages(s);
+
+                return (
+                  <div
+                    key={s.id}
+                    className={`suit-card${cardsIn[idx] ? " in" : ""}${idx === galCur ? " active-card" : ""}`}
+                    style={{ "--card-glow": s.glow, "--card-color": s.color }}
+                    onClick={() => {
+                      if (!isLoggingOut && Math.abs(g.current.x - g.current.target) < 4) scrollTo(idx);
+                    }}
+                  >
+                    <div className="card-scan" />
+                    <div className="suit-visual">
+                      {suitImages.length ? (
+                        <>
+                          <img className="suit-image" src={suitImages[0]} alt={s.name} />
+                          {suitImages.length > 1 && (
+                            <div className="suit-image-stack">
+                              {suitImages.slice(0, 3).map((image, imageIdx) => (
+                                <img
+                                  key={`${s.id}-image-${imageIdx}`}
+                                  className="suit-image-thumb"
+                                  src={image}
+                                  alt={`${s.name} view ${imageIdx + 1}`}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="suit-3d" dangerouslySetInnerHTML={{ __html: buildSuitSVG(s, idx) }} />
+                      )}
                     </div>
-                    <div className="suit-status">
-                      <div className="suit-status-dot" /><div className="suit-status-txt">SYSTEMS ONLINE</div>
+                    <div className="suit-info">
+                      <div className="suit-year">{s.year}</div>
+                      <div className="suit-mark">{s.name}</div>
+                      <div className="suit-subname">{s.sub}</div>
+                      <div className="suit-parts">
+                        {s.parts.map((part, partIdx) => {
+                          const partName = getPartName(part);
+
+                          return (
+                            <div key={`${s.id}-${partName}-${partIdx}`} className="suit-part-tag">
+                              <span>{partName}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="suit-status">
+                        <div className="suit-status-dot" /><div className="suit-status-txt">SYSTEMS ONLINE</div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
           <div className={`gal-controls${controlsVis ? " vis" : ""}`}>

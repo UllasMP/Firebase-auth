@@ -250,21 +250,24 @@ opacity:0;pointer-events:none;transition:opacity .8s var(--ease-in-out-quart),tr
 .suit-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 105%,var(--card-glow,rgba(0,234,255,.07)) 0%,transparent 65%);opacity:0;transition:opacity .35s ease;pointer-events:none;z-index:0}
 .suit-card:hover::before{opacity:1}
 .suit-card.active-card{border-color:var(--card-glow,rgba(0,234,255,.55)) !important;box-shadow:0 0 0 1px var(--card-glow,rgba(0,234,255,.18)),0 0 35px var(--card-glow,rgba(0,234,255,.22)),inset 0 0 16px rgba(0,0,0,.4) !important;animation:galleryRise .55s var(--ease-out-expo)}
-.suit-visual{position:relative;height:62%;display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(0,0,0,.3)}
+.suit-visual{position:relative;height:62%;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:8px;background:radial-gradient(circle at center,rgba(0,234,255,.08),rgba(0,0,0,.38) 62%,rgba(0,0,0,.82) 100%)}
+.suit-image{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;object-position:center;display:block;filter:drop-shadow(0 0 18px rgba(0,234,255,.16))}
+.suit-image-stack{position:absolute;right:10px;bottom:10px;display:flex;gap:6px;padding:6px 8px;background:rgba(4,8,16,.72);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px)}
+.suit-image-thumb{width:26px;height:34px;object-fit:cover;display:block;border:1px solid rgba(255,255,255,.12)}
 .suit-3d{width:clamp(90px,12vw,120px);height:clamp(130px,17vw,172px);animation:suitFloat 4.5s ease-in-out infinite;transition:transform .5s var(--ease-out-expo)}
 .suit-card:hover .suit-3d{animation:none;transform:translateY(-8px) rotateY(16deg) rotateX(4deg)}
 .suit-svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 10px var(--card-glow,rgba(0,234,255,.45)))}
 .card-scan{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--card-glow,rgba(0,234,255,.55)),transparent);animation:scanFull 4s linear infinite;pointer-events:none}
 .suit-info{padding:clamp(8px,1.5vw,12px) clamp(10px,2vw,16px);border-top:1px solid rgba(255,255,255,.05);position:relative;z-index:1}
 .suit-mark{font-family:var(--F1);font-size:clamp(10px,1.6vw,15px);letter-spacing:3px;font-weight:700;color:var(--card-color,var(--cyan));margin-bottom:3px}
-.suit-subname{font-family:var(--F3);font-size:7px;letter-spacing:2px;color:var(--dim);margin-bottom:6px}
+.suit-subname{font-family:var(--F3);font-size:7px;letter-spacing:4px;color:rgba(190,205,225,.42);margin-bottom:10px;text-transform:uppercase}
 .suit-year{font-family:var(--F3);font-size:7px;letter-spacing:2px;color:rgba(255,215,0,.55);position:absolute;top:10px;right:12px}
-.suit-parts{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
-.suit-part-tag{font-family:var(--F3);font-size:6px;letter-spacing:1px;padding:2px 5px;border:1px solid rgba(255,255,255,.06);color:var(--dim);background:rgba(255,255,255,.02);transition:all .28s ease}
-.suit-card:hover .suit-part-tag{border-color:var(--card-glow,rgba(0,234,255,.28));color:var(--card-color,var(--cyan))}
-.suit-status{display:flex;align-items:center;gap:6px;margin-top:6px;padding-top:5px;border-top:1px solid rgba(255,255,255,.04)}
-.suit-status-dot{width:5px;height:5px;border-radius:50%;background:var(--card-color,var(--cyan));animation:statusBlink 2.2s ease-in-out infinite;box-shadow:0 0 5px var(--card-glow,rgba(0,234,255,.6))}
-.suit-status-txt{font-family:var(--F3);font-size:6px;letter-spacing:2px;color:var(--card-color,var(--cyan))}
+.suit-parts{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.05)}
+.suit-part-tag{display:inline-flex;align-items:center;justify-content:center;min-height:22px;font-family:var(--F3);font-size:7px;letter-spacing:2px;padding:3px 8px;border:1px solid rgba(255,255,255,.09);color:rgba(205,215,230,.48);background:rgba(255,255,255,.015);text-transform:uppercase;transition:all .28s ease}
+.suit-card:hover .suit-part-tag{border-color:rgba(255,255,255,.18);color:rgba(235,242,255,.72);background:rgba(255,255,255,.03)}
+.suit-status{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:2px}
+.suit-status-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,215,190,.9);animation:statusBlink 2.2s ease-in-out infinite;box-shadow:0 0 8px rgba(255,215,190,.45)}
+.suit-status-txt{font-family:var(--F3);font-size:7px;letter-spacing:4px;color:rgba(220,205,180,.58)}
 .gal-boot-scan{position:absolute;left:0;right:0;height:3px;z-index:20;background:linear-gradient(90deg,transparent,var(--cyan),var(--gold),var(--cyan),transparent);box-shadow:0 0 20px var(--cyan),0 0 40px rgba(0,234,255,.4);animation:bootScan 1.4s ease-in-out 1 forwards;pointer-events:none}
 
 /* ── OWNER PANEL ────────────────────────────── */
@@ -280,8 +283,8 @@ opacity:0;pointer-events:none;transition:opacity .8s var(--ease-in-out-quart),tr
 .own-sys-label{padding:10px 12px 0;font-family:var(--F3);font-size:7px;letter-spacing:4px;color:var(--cyan-d);display:flex;flex-direction:column;align-items:flex-start;gap:6px;flex:0 0 auto}
 .own-sys-head{display:flex;align-items:center;gap:8px}
 .own-sys-dot{width:5px;height:5px;border-radius:50%;background:var(--cyan);animation:statusBlink 1.8s ease-in-out infinite;box-shadow:0 0 5px var(--cyan)}
-.own-sys-user{padding-left:13px;font-size:6px;letter-spacing:3px;color:rgba(255,215,0,.72)}
-.own-logout-btn{margin-left:13px;padding:4px 10px;background:rgba(7,20,75,.9);border:1px solid rgba(255,215,0,.4);color:var(--gold);font-family:var(--F3);font-size:6px;letter-spacing:2px;cursor:pointer;transition:background .25s ease,border-color .25s ease,transform .15s ease}
+.own-sys-user{padding-left:13px;font-size:10px;letter-spacing:3px;color:rgba(255,215,0,.72)}
+.own-logout-btn{margin-left:13px;padding:4px 10px;background:rgba(7,20,75,.9);border:1px solid rgba(255,215,0,.4);color:var(--gold);font-family:var(--F3);font-size:9px;letter-spacing:2px;cursor:pointer;transition:background .25s ease,border-color .25s ease,transform .15s ease}
 .own-logout-btn:hover{background:rgba(18,36,110,.95);border-color:var(--gold)}
 .own-logout-btn:active{transform:scale(.97)}
 .own-logout-btn.busy{opacity:.72;cursor:wait;box-shadow:0 0 12px rgba(255,215,0,.22)}

@@ -1,5 +1,6 @@
 ﻿import React, { useEffect, useState } from "react";
 import { getDoc, doc } from "firebase/firestore";
+import owner from "../assets/Stark.jpg";
 
 import { auth, db } from "./firebase";
 
@@ -7,7 +8,7 @@ function OwnerPanel({ visible, statBarsReady, onLogout, isLoggingOut }) {
   const [userData, setUserData] = useState(null);
 
   const OWNER = {
-    photoUrl: null,
+    photoUrl: owner,
     name: "TONY STARK",
     title: "CEO - STARK INDUSTRIES - IRON MAN",
     stats: [
@@ -35,8 +36,9 @@ function OwnerPanel({ visible, statBarsReady, onLogout, isLoggingOut }) {
       }
 
       setUserData({
-        email: user.email,
+       
         firstName: "Unknown User",
+         email: user.email,
         createdAt: null
       });
     });
@@ -56,19 +58,16 @@ function OwnerPanel({ visible, statBarsReady, onLogout, isLoggingOut }) {
         </div>
         {userData ? (
           <>
-            <div className="own-sys-user">{userData.email}</div>
-            <div className="own-sys-user">{userData.firstName}</div>
-            <div className="own-sys-user">
-              {userData.createdAt?.seconds
-                ? new Date(userData.createdAt.seconds * 1000).toLocaleString()
-                : "Created date unavailable"}
-            </div>
+         
+            <div className="own-sys-user">Name: {userData.firstName}</div>
+               <div className="own-sys-user">Email: {userData.email}</div>
+           
           </>
         ) : (
           <div className="own-sys-user">Loading...</div>
         )}
         <button className={`own-logout-btn${isLoggingOut ? " busy" : ""}`} onClick={onLogout} disabled={isLoggingOut}>
-          {isLoggingOut ? "Logging Out..." : "Logout"}
+          {isLoggingOut ? "Shuting Down..." : "SHUTDOWN "}
         </button>
       </div>
 
