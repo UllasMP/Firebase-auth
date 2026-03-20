@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+﻿import { useCallback, useEffect, useState } from "react";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { setDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify";
 
@@ -109,19 +109,24 @@ function AuthCard({ onLogin }) {
         createdAt: new Date()
       });
 
-      await signOut(auth);
+      toast.success("Auto Logging in......", {
+        position: "bottom-center",
+        autoClose: 4000
+      });
 
       setSAlert({
-        msg: "IDENTITY REGISTERED - LOGIN TO CONTINUE",
+        msg: "IDENTITY REGISTERED - ACCESS GRANTED",
         err: false
       });
 
       setLEmail(sEmail);
+      setLPass("");
       setSName("");
       setSEmail("");
       setSPass("");
-      await delay(500);
-      switchPanel("login");
+      await delay(700);
+      await animateExit();
+      onLogin();
     } catch (error) {
       toast.error(error.message, {
         position: "bottom-center",
@@ -130,7 +135,7 @@ function AuthCard({ onLogin }) {
     } finally {
       setSLoad(false);
     }
-  }, [sEmail, sName, sPass, switchPanel]);
+  }, [animateExit, onLogin, sEmail, sName, sPass]);
 
   const cardClass = `auth-card${cardVis ? " vis" : ""}${leaving ? " exiting" : ""} ${panel === "login" ? "login-active" : "signup-active"}`;
 

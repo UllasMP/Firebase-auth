@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+﻿import { useCallback, useEffect, useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
 import AuthCard from "./components/AuthCard";
@@ -9,7 +9,6 @@ import VideoScene from "./components/VideoScene";
 
 import { STARK_CSS } from "./styles/starkCss";
 import { injectStarkFonts } from "./utils/injectFonts";
-
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
